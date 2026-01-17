@@ -18,7 +18,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    if (!supabaseAdmin) {
+    const admin = supabaseAdmin;
+    if (!admin) {
       return NextResponse.json({ error: 'Database not available' }, { status: 500 });
     }
 
@@ -36,7 +37,7 @@ export async function POST(request: NextRequest) {
 
     for (let i = 0; i < users.length; i++) {
       const userData = users[i];
-      
+
       try {
         // Validate required fields
         if (!userData.email || !userData.password || !userData.full_name) {
@@ -75,7 +76,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Check if email already exists
-        const { data: existingUser } = await supabaseAdmin
+        const { data: existingUser } = await admin
           .from('users')
           .select('email')
           .eq('email', userData.email)
@@ -95,7 +96,7 @@ export async function POST(request: NextRequest) {
         const hashedPassword = await bcrypt.hash(userData.password, 10);
 
         // Insert user
-        const { error } = await supabaseAdmin
+        const { error } = await admin
           .from('users')
           .insert({
             email: userData.email,
@@ -118,9 +119,9 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      results 
+    return NextResponse.json({
+      success: true,
+      results
     });
   } catch (error) {
     console.error('Import users error:', error);

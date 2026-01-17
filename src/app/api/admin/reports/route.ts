@@ -17,14 +17,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    if (!supabaseAdmin) {
+    const admin = supabaseAdmin;
+    if (!admin) {
       return NextResponse.json({ error: 'Database not available' }, { status: 500 });
     }
 
     const { searchParams } = new URL(request.url);
     const filter = searchParams.get('filter') || 'pending';
 
-    let query = supabaseAdmin
+    let query = admin
       .from('reports')
       .select(`
         *,
@@ -72,12 +73,13 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Missing report_id' }, { status: 400 });
     }
 
-    if (!supabaseAdmin) {
+    const admin = supabaseAdmin;
+    if (!admin) {
       return NextResponse.json({ error: 'Database not available' }, { status: 500 });
     }
 
     // Get report details first
-    const { data: report, error: reportError } = await supabaseAdmin
+    const { data: report, error: reportError } = await admin
       .from('reports')
       .select('*')
       .eq('report_id', report_id)
@@ -86,7 +88,7 @@ export async function PUT(request: NextRequest) {
     if (reportError) throw reportError;
 
     // Update report status
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await admin
       .from('reports')
       .update({ is_resolved, updated_at: new Date().toISOString() })
       .eq('report_id', report_id)
@@ -100,13 +102,13 @@ export async function PUT(request: NextRequest) {
       // Only hide/delete if action is 'hide'
       if (report.content_type === 'q') {
         // Hide question
-        await supabaseAdmin
+        await admin
           .from('questions')
           .update({ is_visible: false })
           .eq('question_id', report.content_id);
       } else if (report.content_type === 'c') {
         // Delete comment
-        await supabaseAdmin
+        await admin
           .from('comments')
           .delete()
           .eq('comment_id', report.content_id);

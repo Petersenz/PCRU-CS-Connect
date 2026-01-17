@@ -3,7 +3,8 @@ import { supabaseAdmin } from '@/lib/supabase';
 
 export async function GET(request: NextRequest) {
   try {
-    if (!supabaseAdmin) {
+    const admin = supabaseAdmin;
+    if (!admin) {
       return NextResponse.json({ error: 'Database not available' }, { status: 500 });
     }
 
@@ -14,7 +15,7 @@ export async function GET(request: NextRequest) {
 
     if (type === 'all' || type === 'questions') {
       // Get questions
-      const { data: questions, error: qError } = await supabaseAdmin
+      const { data: questions, error: qError } = await admin
         .from('questions')
         .select(`
           *,
@@ -32,12 +33,12 @@ export async function GET(request: NextRequest) {
       // Count likes for each question
       const questionsWithLikes = await Promise.all(
         (questions || []).map(async (q) => {
-          const { count } = await supabaseAdmin
+          const { count } = await admin
             .from('likes')
             .select('*', { count: 'exact', head: true })
             .eq('content_id', q.question_id)
             .eq('content_type', 'q');
-          
+
           return { ...q, likes: count || 0 };
         })
       );
@@ -48,7 +49,7 @@ export async function GET(request: NextRequest) {
 
     if (type === 'all' || type === 'comments') {
       // Get comments
-      const { data: comments, error: cError } = await supabaseAdmin
+      const { data: comments, error: cError } = await admin
         .from('comments')
         .select(`
           *,
@@ -63,12 +64,12 @@ export async function GET(request: NextRequest) {
       // Count likes for each comment
       const commentsWithLikes = await Promise.all(
         (comments || []).map(async (c) => {
-          const { count } = await supabaseAdmin
+          const { count } = await admin
             .from('likes')
             .select('*', { count: 'exact', head: true })
             .eq('content_id', c.comment_id)
             .eq('content_type', 'c');
-          
+
           return { ...c, likes: count || 0 };
         })
       );

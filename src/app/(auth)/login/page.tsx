@@ -13,6 +13,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { useAuthStore } from '@/stores/auth';
 import { useLanguageStore } from '@/stores/language';
 
+const MotionDiv = motion.div as any;
+
 export default function LoginPage() {
   const [formData, setFormData] = useState({
     user_id: '',
@@ -98,16 +100,16 @@ export default function LoginPage() {
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-primary-400/20 rounded-full blur-3xl animate-pulse delay-1000" />
       </div>
 
-      <motion.div
+      <MotionDiv
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         className="w-full max-w-md relative z-10"
       >
         {!showForgotPassword ? (
-          <Card variant="glass" className="shadow-glass-xl">
+          <Card className="shadow-glass-xl bg-white/10 backdrop-blur-md border border-white/20">
             <CardHeader className="text-center">
-              <motion.div
+              <MotionDiv
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
@@ -118,7 +120,7 @@ export default function LoginPage() {
                   alt="PCRU CS Logo" 
                   className="w-20 h-20 object-contain mx-auto drop-shadow-lg"
                 />
-              </motion.div>
+              </MotionDiv>
               <CardTitle className="text-2xl font-bold text-glass">
                 {mounted ? t('auth.login.title') : 'Login'}
               </CardTitle>
@@ -257,7 +259,7 @@ export default function LoginPage() {
             </CardContent>
           </Card>
         )}
-      </motion.div>
+      </MotionDiv>
     </div>
   );
 }

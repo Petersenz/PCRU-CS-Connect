@@ -17,7 +17,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    if (!supabaseAdmin) {
+    const admin = supabaseAdmin;
+    if (!admin) {
       return NextResponse.json({ error: 'Database not available' }, { status: 500 });
     }
 
@@ -27,10 +28,10 @@ export async function GET(request: NextRequest) {
       commentsCount,
       reportsCount
     ] = await Promise.all([
-      supabaseAdmin.from('users').select('*', { count: 'exact', head: true }),
-      supabaseAdmin.from('questions').select('*', { count: 'exact', head: true }).eq('is_visible', true),
-      supabaseAdmin.from('comments').select('*', { count: 'exact', head: true }),
-      supabaseAdmin.from('reports').select('*', { count: 'exact', head: true }).eq('is_resolved', false)
+      admin.from('users').select('*', { count: 'exact', head: true }),
+      admin.from('questions').select('*', { count: 'exact', head: true }).eq('is_visible', true),
+      admin.from('comments').select('*', { count: 'exact', head: true }),
+      admin.from('reports').select('*', { count: 'exact', head: true }).eq('is_resolved', false)
     ]);
 
     const statistics = {

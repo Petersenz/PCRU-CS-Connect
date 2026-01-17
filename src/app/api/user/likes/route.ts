@@ -17,12 +17,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    if (!supabaseAdmin) {
+    const admin = supabaseAdmin;
+    if (!admin) {
       return NextResponse.json({ error: 'Database not available' }, { status: 500 });
     }
 
     // Get user's likes
-    const { data: likes, error } = await supabaseAdmin
+    const { data: likes, error } = await admin
       .from('likes')
       .select('*')
       .eq('user_id', user.user_id)
@@ -35,22 +36,22 @@ export async function GET(request: NextRequest) {
       (likes || []).map(async (like) => {
         if (like.content_type === 'q') {
           // Get question details (only visible ones)
-          const { data: question } = await supabaseAdmin
+          const { data: question } = await admin
             .from('questions')
             .select('question_id, title, content, created_at, is_visible, user:users(full_name)')
             .eq('question_id', like.content_id)
             .eq('is_visible', true)
             .single();
-          
+
           return { ...like, question };
         } else if (like.content_type === 'c') {
           // Get comment details
-          const { data: comment } = await supabaseAdmin
+          const { data: comment } = await admin
             .from('comments')
             .select('comment_id, content, created_at, question_id, user:users(full_name)')
             .eq('comment_id', like.content_id)
             .single();
-          
+
           return { ...like, comment };
         }
         return like;
